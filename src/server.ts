@@ -1,17 +1,18 @@
 import { IResolvers } from '@graphql-tools/utils';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import { ApolloServer } from 'apollo-server-express';
-import express from 'express';
+import { Express } from 'express';
 import { DocumentNode } from 'graphql';
 import http from 'http';
+import express from './express/express';
 import theResolvers from './resolvers';
 import theTypeDefs from './type-defs';
 
 const startApolloServer = async (
+  app: Express,
   typeDefs: DocumentNode,
   resolvers: IResolvers
 ): Promise<void> => {
-  const app = express();
   const httpServer = http.createServer(app);
 
   const server = new ApolloServer({
@@ -36,4 +37,4 @@ const startApolloServer = async (
   );
 };
 
-startApolloServer(theTypeDefs, theResolvers);
+startApolloServer(express, theTypeDefs, theResolvers);
