@@ -16,9 +16,16 @@ export default gql`
     refreshToken: String!
   }
 
+  type ErrorResponse {
+    code: Int!
+    msg: String
+  }
+
+  union LoginResponse = Access | ErrorResponse
+
   type Query {
-    ping: Pong!
-    login(email: String!, password: String!): Access!
+    ping: Pong
+    login(email: String!, password: String!): LoginResponse
   }
 
   type Mutation {
@@ -27,6 +34,6 @@ export default gql`
       lastName: String!
       email: String!
       password: String!
-    ): User!
+    ): User
   }
 `;

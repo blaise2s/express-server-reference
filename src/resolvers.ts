@@ -18,6 +18,11 @@ export interface User extends Email {
 
 export interface Signup extends User, Password {}
 
+export interface ErrorResponse {
+  code: number;
+  msg?: string;
+}
+
 export interface Access {
   accessToken: string;
   refreshToken: string;
@@ -37,6 +42,11 @@ const generateRefreshToken = (payload: any) => {
   return jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET!);
 };
 
+const incorrectEmailPasswordErrorResponse: ErrorResponse = {
+  code: 401,
+  msg: 'Incorrect email or password',
+};
+
 export default {
   Query: {
     ping: () => ({ msg: 'pong' }),
@@ -47,21 +57,21 @@ export default {
       context: unknown,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       info: unknown
-    ): Promise<Access | string> => {
+    ): Promise<Access | ErrorResponse> => {
       if (
         !process.env.ACCESS_TOKEN_SECRET ||
         !process.env.REFRESH_TOKEN_SECRET
       ) {
-        return 'No secrets available on the server';
+        return { code: 500 };
       }
 
       const user = users.find(usr => usr.email === args.email);
       if (!user) {
-        return 'Incorrect email or password';
+        return incorrectEmailPasswordErrorResponse;
       }
 
       if (!(await bcrypt.compare(args.password, user.password))) {
-        return 'Incorrect email or password';
+        return incorrectEmailPasswordErrorResponse;
       }
 
       const userPayload: User = {
@@ -74,6 +84,21 @@ export default {
         accessToken: generateAccessToken(userPayload),
         refreshToken: generateRefreshToken(userPayload),
       };
+    },
+  },
+
+  LoginResponse: {
+    // eslint-disable-next-line no-underscore-dangle
+    __resolveType(obj: ErrorResponse | Access) {
+      if ((obj as ErrorResponse).code) {
+        return 'ErrorResponse';
+      }
+
+      if ((obj as Access).accessToken) {
+        return 'Access';
+      }
+
+      return null;
     },
   },
 
