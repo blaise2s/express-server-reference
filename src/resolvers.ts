@@ -25,6 +25,18 @@ export interface Access {
 
 const users: Signup[] = [];
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const generateAccessToken = (payload: any) => {
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  return jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET!);
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const generateRefreshToken = (payload: any) => {
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  return jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET!);
+};
+
 export default {
   Query: {
     ping: () => ({ msg: 'pong' }),
@@ -48,7 +60,7 @@ export default {
         return 'Incorrect email or password';
       }
 
-      if (!bcrypt.compare(args.password, args.password)) {
+      if (!(await bcrypt.compare(args.password, user.password))) {
         return 'Incorrect email or password';
       }
 
@@ -58,19 +70,9 @@ export default {
         email: user.email,
       };
 
-      const accessToken = jwt.sign(
-        userPayload,
-        process.env.ACCESS_TOKEN_SECRET
-      );
-
-      const refreshToken = jwt.sign(
-        userPayload,
-        process.env.REFRESH_TOKEN_SECRET
-      );
-
       return {
-        accessToken,
-        refreshToken,
+        accessToken: generateAccessToken(userPayload),
+        refreshToken: generateRefreshToken(userPayload),
       };
     },
   },
