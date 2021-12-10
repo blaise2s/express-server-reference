@@ -26,6 +26,7 @@ export default gql`
   type Query {
     ping: Pong
     login(email: String!, password: String!): LoginResponse
+    protected(accessToken: String!, refreshToken: String!): Pong
   }
 
   type Mutation {

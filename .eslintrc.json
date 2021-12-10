@@ -43,6 +43,7 @@
       {
         "allowSingleExtends": true
       }
-    ]
+    ],
+    "no-underscore-dangle": "off"
   }
 }

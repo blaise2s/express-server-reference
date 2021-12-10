@@ -5,8 +5,8 @@ import { Express } from 'express';
 import { DocumentNode } from 'graphql';
 import http from 'http';
 import express from './express/express';
-import theResolvers from './resolvers';
-import theTypeDefs from './type-defs';
+import theResolvers from './graphql/resolvers';
+import theTypeDefs from './graphql/type-defs';
 
 const startApolloServer = async (
   app: Express,
@@ -24,7 +24,7 @@ const startApolloServer = async (
   await server.start();
   server.applyMiddleware({
     app,
-    path: '/',
+    path: '/api/auth-server/v1/graphql',
   });
 
   const port = process.env.PORT || 3000;
